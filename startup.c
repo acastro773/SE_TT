@@ -14,7 +14,6 @@ void WEAK  SVCIntHandler(void);
 void WEAK  DebugMonIntHandler(void);
 void WEAK  PendSVIntHandler(void);
 void WEAK  SysTickIntHandler(void);
-void WEAK  SysTick_Handler(void);
 void WEAK  DMA0IntHandler(void);
 void WEAK  DMA1IntHandler(void);
 void WEAK  DMA2IntHandler(void);
@@ -94,7 +93,7 @@ void (* const g_pfnVectors[])(void) =
     0, 0,                                   // Reserved
     PendSVIntHandler,                       // The PendSV handler
     SysTickIntHandler,                      // The SysTick handler
-    SysTick_Handler,                   	    // The SysTick handler
+
     DMA0IntHandler,                         // DMA channel 0 transfer complete
                                             // and error handler
     DMA1IntHandler,                         // DMA channel 1 transfer complete
@@ -144,9 +143,15 @@ void (* const g_pfnVectors[])(void) =
 //!
 //! \return None.
 //*****************************************************************************
+
+// Defined in system_MKL46Z4.c: disables watchdog
+extern void SystemInit(void);
+
 void Default_ResetHandler(void)
 {
   unsigned long *pulSrc, *pulDest;
+
+  SystemInit();
 
   /* copy the data segment initializers from flash to SRAM */
   pulSrc = &_sidata;
@@ -180,7 +185,6 @@ void Default_ResetHandler(void)
 #pragma weak DebugMonIntHandler = DefaultIntHandler
 #pragma weak PendSVIntHandler = DefaultIntHandler
 #pragma weak SysTickIntHandler = DefaultIntHandler
-#pragma weak SysTick_Handler = DefaultIntHandler
 #pragma weak DMA0IntHandler = Default_ResetHandler
 #pragma weak DMA1IntHandler = Default_ResetHandler
 #pragma weak DMA2IntHandler = Default_ResetHandler
@@ -207,7 +211,7 @@ void Default_ResetHandler(void)
 #pragma weak DACIntHandler = Default_ResetHandler
 #pragma weak TSIIntHandler = Default_ResetHandler
 #pragma weak MCGIntHandler = Default_ResetHandler
-#pragma weak LPTMRIntHandler = Default_ResetHandler
+#pragma weak LPTMRIntHandler = DefaultIntHandler
 #pragma weak PORTAIntHandler = Default_ResetHandler
 #pragma weak PORTDIntHandler = Default_ResetHandler
 
@@ -224,6 +228,6 @@ void Default_ResetHandler(void)
 //*****************************************************************************
 static void DefaultIntHandler(void)
 {
-  while(1) {};
+  for(;;);
 }
 
