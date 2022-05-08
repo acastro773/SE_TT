@@ -67,6 +67,7 @@ int status_bt1 = 0;
 int status_bt2 = 0;
 int status = 0;
 int select = 0;
+int rep = 0;
 uint32_t secCounter = 0U;
 uint32_t minCounter = 0U;
 uint32_t hourCounter = 0U;
@@ -148,11 +149,17 @@ void PORTDIntHandler(void) {
         // SW1
         if (status == 0) {
 		if(pressed_switch == (0x8)) {
+		    rep = 0;
 		    status_bt1 = 1;
 		    status = 1;
                     led_green_on();
 		} else
 		  status_bt1 = 0;
+		if(pressed_switch == (0x1000)) {
+			if (rep == 0)
+				rep = 1;
+			else rep = 0;
+		}
 	} else {
 		if(pressed_switch == (0x8)) {
 		    status_bt1 = 1;
@@ -254,7 +261,9 @@ int main(void)
 		hourCounter = 0U;
 	  }
 	}
-	lcd_display_time(hourCounter, minCounter);
+	if (rep == 0)
+		lcd_display_time(hourCounter, minCounter);
+	else lcd_display_time(minCounter, secCounter);
         if (currentCounter != lptmrCounter)
         {
             currentCounter = lptmrCounter;
